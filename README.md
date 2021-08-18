@@ -44,5 +44,4 @@ You'll need to install the **[zbar](https://github.com/ZBar/ZBar)** package on y
 
 ## Possible Upgrades
 
- - Generating a tiny "*info*" QR Code to help the decoder know if any QR Code was missed while being read. This QR Code would contain data such as **total number of QR Codes**, **checksum**, **date of creation**, **PDF title**, **original file size**, etc.
- - Displaying checksum hash on PDF.
+ - Displaying checksum hash on PDF. (Not really needed because the decode.py script checks this automatically)
