@@ -28,7 +28,8 @@ import os
 from natsort import natsorted
 
 OG_FILENAME = None
-OG_FILESIZE = None
+qr_code_directory = None
+
 
 class PDF(FPDF):
     def footer(self):
@@ -43,16 +44,13 @@ class PDF(FPDF):
         self.ln(8)
         self.set_font('Arial', 'I', 10)
         self.cell(0, 0, "github.com/CodeShady/PaperROM", 0, 0, 'C')
-        # Display original size
-        self.set_font('Arial', 'I', 16)
-        self.cell(-8, 0, str(OG_FILESIZE), 0, 0, 'C')
+
 
 def generate_pdf():
-    global OG_FILENAME, OG_FILESIZE
+    global OG_FILENAME,qr_code_directory
 
     # Get additional information about document
     OG_FILENAME = input(" Enter PDF Title (My Documents): ")
-    OG_FILESIZE = input(" Enter Original File Size (16KB? 1KB?): ")
     qr_code_directory = input(" Where are your QR codes located? (Default: ./): ")
     printable_file_location = input(" What should I name the PDF file? ")
 
@@ -66,7 +64,7 @@ def generate_pdf():
     pdf = PDF('P', 'mm', 'A4')
     pdf.add_page()
     pdf.set_font('Helvetica', '', 10)
-    
+
     current_x_pos = 2
     current_y_pos = 2#12
     qr_size = 68.5
@@ -77,7 +75,7 @@ def generate_pdf():
 
     # Get images in directory
     for qr_png in natsorted(os.listdir(qr_code_directory)):
-        if qr_png.endswith(".png"):
+        if qr_png.endswith(".png") and not qr_png == "qr-codes-info.png":
             qr_png = qr_code_directory + qr_png
             # Increment Counters
             row_counter += 1
@@ -91,6 +89,8 @@ def generate_pdf():
 
             # Check if we've reached the max limit of QR codes for this page
             if qr_index >= 12:
+                # Add data/info QR code to footer of page
+                pdf.image(qr_code_directory + "qr-codes-info.png", 188, 275.8, 20)
                 # Add another page to PDF
                 pdf.add_page()
 
@@ -112,6 +112,7 @@ def generate_pdf():
 
     # Save the PDF
     pdf.output(printable_file_location, 'F')
+
 
 # Main
 if __name__ == "__main__":

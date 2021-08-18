@@ -23,12 +23,27 @@
 
 import qrcode
 import base64
+import hashlib
 
 class PaperROMEncoder:
     def __init__(self, input_filename, output_directory, qr_block_size=2100):
         self.input_filename = input_filename # input_file = "myFile.txt" (or something like that)
         self.output_directory = output_directory
         self.qr_block_size = qr_block_size
+
+        # Info
+        self.qr_codes_generated = 0 # Keep track of how many QR codes were generated
+        self.file_hash = self.get_file_hash()
+
+  
+    def get_file_hash(self):
+        return hashlib.md5(self.input_filename.encode("utf-8")).hexdigest()
+
+
+    def generate_info_file(self):
+        # Generate information file (another QR code) for qr2pdf.py & decoder.py to pick up
+        info_data = """!INFOFILE!\n""" + str(self.qr_codes_generated) + """\n""" + self.file_hash + """\n""" + self.input_filename
+        self.generate_qr(info_data, "qr-codes-info.png")
 
 
     def read_file_contents(self):
@@ -73,6 +88,9 @@ class PaperROMEncoder:
 
 
     def generate_qr(self, block_data, qr_output_filename):
+        # Increment info counter
+        self.qr_codes_generated += 1
+
         # Print info message
         print(" Generating QR code! (QR Code block length = %s chars)" % len(block_data))
         
@@ -131,3 +149,4 @@ if __name__ == "__main__":
     # Create PaperROMEncoder class                        \/ You can also add a custom QR block size! (Default is 2100 bytes)
     paperROM = PaperROMEncoder(file_name, output_directory)
     paperROM.split_data(paperROM.read_file_contents())
+    paperROM.generate_info_file()
