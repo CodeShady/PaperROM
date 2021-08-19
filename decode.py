@@ -21,13 +21,12 @@
 
 """
 
-#import qrcode
+import pickle
 import cv2 as cv
 from pdf2image import convert_from_path
 from pyzbar.pyzbar import decode
-import os, sys
+import os, sys, hashlib, binascii
 from natsort import natsorted
-import hashlib
 
 # Important variables
 is_pdf = None
@@ -37,6 +36,9 @@ class PaperROMDecoder:
         self.output_string = []
         self.final_output_string = []
         self.counted_qr_codes = 0 # Keep track of number of counted QR codes
+        self.total_qr_codes = None # Total number of QR codes
+        self.correct_hash = None # MD5 Hash
+        self.output_file_name = None # Output File Name 
 
     def decode_png(self):
         # Read image
@@ -57,8 +59,15 @@ class PaperROMDecoder:
                 # Save QR code data to a big string
                 self.output_string.append(code.data.decode("utf-8"))
     
+    
     def get_file_hash(self):
         return hashlib.md5(self.output_file_name.encode("utf-8")).hexdigest()
+    
+
+    def numbers_to_string(self, input_numbers):
+        # This function converts the hexadecimal numbers back to the original text
+        return binascii.unhexlify(format(int(input_numbers), "x").encode("utf-8"))
+
 
     def generate_file(self):
         # Sort the list
@@ -77,13 +86,17 @@ class PaperROMDecoder:
             sys.exit(1)
 
         # Save the big string to the output file
-        with open(".tmp-" + self.output_file_name, "w") as output_file:
+        with open(self.output_file_name, "wb+") as output_file:
+            combined_data = ""
             for string in self.final_output_string:
-                output_file.write(string)
+                # Write the data to the file
+                combined_data += string
+            
+            # Decode the Pickled data and write it to the new file
+            output_file.write(pickle.loads(self.numbers_to_string(combined_data)))
+            
+            # Close the file
             output_file.close()
-
-        # Rewrite the file as decoded base64
-        os.system(f"cat '.tmp-{self.output_file_name}' | base64 -d > '{self.output_file_name}'")
 
         # Check if file hashes match
         if self.get_file_hash() == self.correct_hash:
@@ -93,8 +106,6 @@ class PaperROMDecoder:
 
         # Cleanup!
         os.system("rm tmp-reading-file.png")
-        os.system(f"rm '.tmp-{self.output_file_name}'")
-
 
 # Main
 if __name__ == "__main__":

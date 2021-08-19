@@ -24,6 +24,8 @@
 import qrcode
 import base64
 import hashlib
+import binascii
+import pickle
 
 class PaperROMEncoder:
     def __init__(self, input_filename, output_directory, qr_block_size=2100):
@@ -34,8 +36,13 @@ class PaperROMEncoder:
         # Info
         self.qr_codes_generated = 0 # Keep track of how many QR codes were generated
         self.file_hash = self.get_file_hash()
-
+    
+    def convert_to_numbers(self, input_string):
+        # QR Codes can store more numbers than charaters
+        # So, this function converts the input_file/some string into numbers converting it to hexadecimal codes.
+        return str(int(binascii.hexlify(input_string), 16))
   
+    
     def get_file_hash(self):
         return hashlib.md5(self.input_filename.encode("utf-8")).hexdigest()
 
@@ -50,8 +57,10 @@ class PaperROMEncoder:
         # Read file and return value as base64
         with open(file_name, "rb") as input_file:
             file_bytes = input_file.read()
-            # Encode file with Base64 (and return the value)
-            return base64.b64encode(file_bytes).decode("utf-8")
+            # Encode file with the Pickle Library (and return the value)
+            # Encoding with Pickle will ensure that no encoding will be messed up when
+            # loading and storing any data.
+            return pickle.dumps(file_bytes)
 
 
     def split_data(self, data):
@@ -96,7 +105,7 @@ class PaperROMEncoder:
         
         # Create QR Code class
         QR = qrcode.QRCode(
-            version=2,
+            #version=40,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
             box_size=10,
             border=4,
@@ -146,7 +155,7 @@ if __name__ == "__main__":
     if output_directory == "":
         output_directory = "./"
 
-    # Create PaperROMEncoder class                        \/ You can also add a custom QR block size! (Default is 2100 bytes)
-    paperROM = PaperROMEncoder(file_name, output_directory)
-    paperROM.split_data(paperROM.read_file_contents())
+    # Create PaperROMEncoder class                           \/ You can also add a custom QR block size! (Default is 2100 bytes)
+    paperROM = PaperROMEncoder(file_name, output_directory, 5500)
+    paperROM.split_data(paperROM.convert_to_numbers(paperROM.read_file_contents()))
     paperROM.generate_info_file()
