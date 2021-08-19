@@ -11,7 +11,7 @@ One sheet of paper hold an estimated **50 Kilobytes** of data--as of right now.
 
 📥 **The PaperROM encoder** works by taking a file and breaking it up into multiple pieces. It then distributes those pieces into multiple QR Codes. The script then saves each QR Code into a directory the user selected. The script also gets some information such as the **MD5 hash** of your original file which gets stored into a small QR Code you'll find at the bottom right of your printable PDF. You can then use another script to take all these QR Codes and format them onto a printable PDF.
 
-📤 **The PaperROM decoder** works by taking an encoded PDF or PNG and detecting all QR Codes. It then takes all the QR Code's data and places them in the correct order. Then, it constructs the file into the original version again. After everything is finished, the decoder checks to see if the original file's hash matches with the newly generated file. It also checks to see if they expected number of QR Codes were scanned to make sure there isnt' any corruption.
+📤 **The PaperROM decoder** works by taking an encoded PDF or PNG and detecting all QR Codes. It then takes all the QR Code's data and places them in the correct order. Then, it constructs the file into the original version again. After everything is finished, the decoder checks to see if the original file's hash matches with the newly generated file. It also checks to see if they expected number of QR Codes were scanned to notify the user if some are unreadable.
 
 ⚠️ **The PaperROM encoder does not compress your files!!!** If the file you're trying to encode is something that should be compressed, do it before encoding!
 
