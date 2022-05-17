@@ -21,7 +21,7 @@ Usage is pretty simple. You'll get a few self explanatory prompts when you run t
 
 **To Encode a File**
 
-	$ python3 decode.py
+	$ python3 encode.py
 
 **To Generate a Printable PDF**
 
