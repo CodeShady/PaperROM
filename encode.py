@@ -22,10 +22,10 @@
 """
 
 import qrcode
-import base64
 import hashlib
 import binascii
 import pickle
+from datetime import datetime
 
 class PaperROMEncoder:
     def __init__(self, input_filename, output_directory, qr_block_size=2100):
@@ -48,8 +48,10 @@ class PaperROMEncoder:
 
 
     def generate_info_file(self):
+        # datetime object containing current date and time
+        current_timestamp = str(datetime.now())
         # Generate information file (another QR code) for qr2pdf.py & decoder.py to pick up
-        info_data = """!INFOFILE!\n""" + str(self.qr_codes_generated) + """\n""" + self.file_hash + """\n""" + self.input_filename
+        info_data = "qr-info\n" + str(self.qr_codes_generated) + "\n" + self.file_hash + "\n" + self.input_filename + "\n" + current_timestamp
         self.generate_qr(info_data, "qr-codes-info.png")
 
 
@@ -149,13 +151,16 @@ if __name__ == "__main__":
 """)
 
     # Get information
-    file_name = input(" File To Encode (Preferrably a Zip File): ")
+    file_name = input(" File To Encode (Tip: compress your data before encoding to save space!): ")
     output_directory = input(" Where should I put all your QR codes? Path: ")
 
     if output_directory == "":
         output_directory = "./"
 
+    # Message
+    print(" Generating... This may take a few minutes depending on how large your file is...")
+
     # Create PaperROMEncoder class                           \/ You can also add a custom QR block size! (Default is 2100 bytes)
-    paperROM = PaperROMEncoder(file_name, output_directory, 5500)
+    paperROM = PaperROMEncoder(file_name, output_directory, 5500)#1480)#5500)
     paperROM.split_data(paperROM.convert_to_numbers(paperROM.read_file_contents()))
     paperROM.generate_info_file()
